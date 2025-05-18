@@ -6,8 +6,9 @@ import { Typography } from '@mui/material';
 import { AppDatePicker, AppTableSeverity, AppTray } from '../sections/@severitylog/app';
 
 export default function SeverityLogPage() {
-  // Tambahkan state untuk tanggal yang dipilih
+  // State untuk tanggal dan waktu yang dipilih
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
 
   return (
     <>
@@ -25,14 +26,14 @@ export default function SeverityLogPage() {
           
           {/* Kiri: Date Picker */}
           <div style={{ flex: 1, maxWidth: '250px' }}>
-            {/* Kirim fungsi setSelectedDate ke AppDatePicker */}
-            <AppDatePicker onDateSelect={setSelectedDate} />
+            {/* Kirim fungsi setSelectedDate dan setSelectedTime ke AppDatePicker */}
+            <AppDatePicker onDateSelect={setSelectedDate} onTimeSelect={setSelectedTime} />
           </div>
 
           {/* Tengah: Table */}
           <div style={{ flex: 2 }}>
-            {/* Kirim tanggal yang dipilih ke AppTableSeverity */}
-            <AppTableSeverity selectedDate={selectedDate} />
+            {/* Kirim tanggal dan waktu yang dipilih ke AppTableSeverity */}
+            <AppTableSeverity selectedDate={selectedDate} selectedTime={selectedTime} />
           </div>
 
           {/* Kanan: Tray */}

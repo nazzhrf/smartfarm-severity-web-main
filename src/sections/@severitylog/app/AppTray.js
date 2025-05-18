@@ -7,6 +7,7 @@ import {
   Button,
 } from '@mui/material';
 import { useState } from 'react';
+import axios from 'axios'; // Pastikan axios sudah terinstall
 
 export default function AppTray() {
   // Default dan fallback gambar
@@ -21,10 +22,32 @@ export default function AppTray() {
     setImageSrc(fallbackImage);
   };
 
-  const handleSubmitFilter = () => {
-    // Sementara hanya console log saja, API belum ada
-    console.log('Filter submit:', { filterDate, filterTime });
-  };
+  const handleSubmitFilter = async () => {
+  try {
+    console.log('Mengirim ke API:', { tanggal: filterDate, waktu: filterTime });
+
+    const response = await axios.post(
+      'https://api-classify.smartfarm.id/get-full-image',
+      {
+        tanggal: filterDate,
+        waktu: filterTime,
+      }
+    );
+
+    const { image_data: imageData, image_name: imageName } = response.data || {};
+
+    if (imageData) {
+      setImageSrc(imageData); // tampilkan gambar base64
+      console.log(`Gambar ${imageName} berhasil dimuat`);
+    } else {
+      console.warn('Gambar tidak ditemukan di respons API.');
+      setImageSrc(fallbackImage);
+    }
+  } catch (error) {
+    console.error('Gagal mendapatkan gambar:', error);
+    setImageSrc(fallbackImage);
+  }
+};
 
   return (
     <Card sx={{ p: 3 }}>
@@ -40,9 +63,6 @@ export default function AppTray() {
                 InputLabelProps={{ shrink: true }}
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                inputProps={{
-                  pattern: '\\d{2}-\\d{2}-\\d{2}', // pattern untuk format YY-MM-DD, tapi HTML date picker pakai yyyy-mm-dd asli
-                }}
               />
             </Grid>
             <Grid item>
