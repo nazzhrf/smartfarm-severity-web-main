@@ -38,7 +38,7 @@ export default function SeverityLogPage() {
 
           {/* Kanan: Tray */}
           <div style={{ flex: 1 }}>
-            <AppTray />
+            <AppTray selectedDate={selectedDate} selectedTime={selectedTime} />
           </div>
         </div>
       </div>
