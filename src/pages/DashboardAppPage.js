@@ -28,7 +28,7 @@ import DatePicker from 'react-datepicker';
 import axiosInstance from '../hooks/axiosInstance';
 
 // sections
-import { AppWebsiteVisits, AppWidgetSummaryLiveData, AppCurrentSubject, PhotoCamera, AppSeverityLog } from '../sections/@dashboard/app';
+import { AppWebsiteVisits, AppWidgetSummaryLiveData, AppCurrentSubject, PhotoCamera } from '../sections/@dashboard/app';
 
 // ----------------------------------------------------------------------
 
@@ -518,7 +518,6 @@ export default function DashboardAppPage() {
               <Card>
                 <Tabs value={activeTab} onChange={handleTabChange} indicatorColor="primary" textColor="primary" variant="fullWidth">
                   <Tab label="Chart" />
-                  <Tab label="Severity Log" />
                 </Tabs>
 
                 <CardContent>
@@ -564,10 +563,6 @@ export default function DashboardAppPage() {
                     )
                   )}
 
-                  {activeTab === 1 && 
-                  // ganti component severity Log
-                    <AppSeverityLog/>
-                  }
                 </CardContent>
               </Card>
             </Grid>

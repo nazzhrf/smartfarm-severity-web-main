@@ -16,7 +16,7 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  Snackbar, 
+  Snackbar,
   Alert,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -109,34 +109,40 @@ export default function AppTableSeverity({ selectedDate, selectedTime }) {
   };
 
   return (
-    <Card sx={{ p: 3 }}>
-      <CardHeader title="Severity Level Log" />
+    <Card sx={{ p: 3, maxWidth: 1000, width: '100%', mx: 'auto' }}>
+      <CardHeader title="Severity Table" />
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <TableContainer component={Paper}>
-            <Table size="small">
+          {/* Tambahkan overflowX untuk scroll horizontal */}
+          <TableContainer
+            component={Paper}
+            sx={{ maxHeight: 600, overflowY: 'auto', maxWidth: 1000, overflowX: 'auto' }}
+          >
+            <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Image</TableCell>
                   <TableCell>Chili</TableCell>
                   <TableCell>Date</TableCell>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Pred Class 1</TableCell>
-                  <TableCell>Pred Class 2</TableCell>
-                  <TableCell>Pred Class 3</TableCell>
+                  {/* Pred 1, 2, 3 dengan maxWidth kecil */}
+                  <TableCell sx={{ maxWidth: 80, width: 80, textAlign: 'center' }}>Pred 1</TableCell>
+                  <TableCell sx={{ maxWidth: 80, width: 80, textAlign: 'center' }}>Pred 2</TableCell>
+                  <TableCell sx={{ maxWidth: 80, width: 80, textAlign: 'center' }}>Pred 3</TableCell>
+                  <TableCell>tanggal</TableCell>
+                  <TableCell>waktu</TableCell>
                   <TableCell>Delete</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={9} align="center">
                       <CircularProgress size={24} />
                     </TableCell>
                   </TableRow>
                 ) : logData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={9} align="center">
                       Tidak ada data
                     </TableCell>
                   </TableRow>
@@ -161,10 +167,17 @@ export default function AppTableSeverity({ selectedDate, selectedTime }) {
                         )}
                       </TableCell>
                       <TableCell>{item.tanggal}</TableCell>
+                      <TableCell sx={{ maxWidth: 80, width: 80, textAlign: 'center' }}>
+                        {item.pred_class_1}
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 80, width: 80, textAlign: 'center' }}>
+                        {item.pred_class_2}
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 80, width: 80, textAlign: 'center' }}>
+                        {item.pred_class_3}
+                      </TableCell>
+                      <TableCell>{item.tanggal}</TableCell>
                       <TableCell>{item.waktu}</TableCell>
-                      <TableCell>{item.pred_class_1}</TableCell>
-                      <TableCell>{item.pred_class_2}</TableCell>
-                      <TableCell>{item.pred_class_3}</TableCell>
                       <TableCell>
                         <Button
                           variant="contained"

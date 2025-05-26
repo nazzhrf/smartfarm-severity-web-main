@@ -1,10 +1,10 @@
 {
   "name": "frontend",
-  "author": "syauqi",
+  "author": "syauqi and TA242501022",
   "licence": "MIT",
   "version": "1.7.0",
   "private": false,
-  "homepage": "https://app.smartfarm.id/",
+  "homepage": "https://v4.smartfarm.id/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

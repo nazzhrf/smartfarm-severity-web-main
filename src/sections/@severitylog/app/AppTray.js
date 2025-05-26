@@ -151,8 +151,8 @@ export default function AppTray({
   };
 
   return (
-    <Card sx={{ p: 3 }}>
-      <CardHeader title="Tray Image Viewer & Filter" />
+    <Card sx={{ p: 3, maxWidth: 900, width: '100%', mx: 'auto', maxHeight: 600 }}>
+      <CardHeader title="Full Tray View" />
 
       <Grid container spacing={2} direction="column">
         {/* Filter input */}
@@ -209,7 +209,9 @@ export default function AppTray({
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: 400,
+                maxWidth: '30vw',
+                minWidth: 400 ,
+                height: 350,
                 overflow: 'hidden',
                 userSelect: 'none',
               }}

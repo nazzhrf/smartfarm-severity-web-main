@@ -6,4 +6,3 @@ export { default as AppWidgetSummaryLiveData } from './AppWidgetSummaryLiveData'
 export { default as AppMonitorWidgetSummaryLiveData } from './AppMonitorWidgetSummaryLiveData';
 export { default as AppCurrentSubject } from './AppCurrentSubject';
 export { default as PhotoCamera } from './PhotoCamera';
-export { default as AppSeverityLog } from './AppSeverityLog';

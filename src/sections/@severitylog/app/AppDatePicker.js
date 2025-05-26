@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, CardHeader, Grid, TextField, Button, Typography, Collapse } from '@mui/material';
+import {
+  Card,
+  CardHeader,
+  Grid,
+  TextField,
+  Button,
+  Typography,
+  Collapse,
+  Paper,
+  Box
+} from '@mui/material';
 
 const AppDatePicker = ({ onDateSelect, onTimeSelect }) => {
   const [year, setYear] = useState('');
@@ -29,12 +39,10 @@ const AppDatePicker = ({ onDateSelect, onTimeSelect }) => {
         map[date].push(time);
       });
 
-      // Waktu tetap disortir ascending saat fetch agar konsisten
       Object.keys(map).forEach(date => {
         map[date].sort((a, b) => {
           const [hA, mA, sA] = a.split(':').map(Number);
           const [hB, mB, sB] = b.split(':').map(Number);
-
           if (hA !== hB) return hA - hB;
           if (mA !== mB) return mA - mB;
           return sA - sB;
@@ -55,7 +63,7 @@ const AppDatePicker = ({ onDateSelect, onTimeSelect }) => {
   };
 
   useEffect(() => {
-    fetchFilteredDirectories(); // initial fetch
+    fetchFilteredDirectories();
   }, []);
 
   const handleSubmit = () => {
@@ -93,146 +101,127 @@ const AppDatePicker = ({ onDateSelect, onTimeSelect }) => {
       setErrorMessage('Pilih tanggal terlebih dahulu sebelum memilih waktu.');
       return;
     }
-    const payload = {
-      tanggal: date,
-      waktu: time,
-    };
+    const payload = { tanggal: date, waktu: time };
     console.log('Payload waktu yang dipilih:', payload);
-    if (onDateSelect) onDateSelect(date);   // Kirim tanggal dan waktu ke parent
-    if (onTimeSelect) onTimeSelect(time);   // Kirim waktu ke parent
+    if (onDateSelect) onDateSelect(date);
+    if (onTimeSelect) onTimeSelect(time);
   };
 
   const toggleSortOrder = () => {
     setIsAscending(prev => !prev);
   };
 
-  // Urutkan tanggal sesuai isAscending
   const sortedDatesToShow = isAscending ? [...dates].sort() : [...dates].sort().reverse();
 
   return (
-    <Card sx={{ p: 3, backgroundColor: '#fff' }}>
-      <CardHeader title="Filter Direktori" />
-      <Grid container direction="column" spacing={2}>
-        <Grid item>
-          <TextField
-            label="Tahun"
-            type="number"
-            value={year}
-            onChange={e => setYear(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-        <Grid item>
-          <TextField
-            label="Bulan"
-            type="number"
-            value={month}
-            onChange={e => setMonth(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-        <Grid item>
-          <TextField
-            label="Minggu ke-"
-            type="number"
-            value={week}
-            onChange={e => setWeek(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-        <Grid item>
-          <TextField
-            label="Tanggal"
-            type="date"
-            value={day}
-            onChange={e => setDay(e.target.value)}
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-        <Grid item>
-          <Button variant="contained" fullWidth onClick={handleSubmit}>
-            Submit Filter
-          </Button>
-        </Grid>
-
-        {errorMessage && (
-          <Grid item>
-            <Typography color="error">{errorMessage}</Typography>
+    <Card sx={{ p: 3, backgroundColor: '#fff'}}>
+    <CardHeader title="Severity Table Filter" />
+    <Grid container spacing={2}>
+      {/* Baris input tahun, bulan, minggu, tanggal */}
+      <Grid item xs={12}>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <TextField
+              label="Tahun"
+              type="number"
+              value={year}
+              onChange={e => setYear(e.target.value)}
+              fullWidth
+            />
           </Grid>
-        )}
-
-        <Grid item>
-          <Typography variant="h6">Tanggal Tersedia:</Typography>
-
-          {/* Tombol toggle urutan */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={toggleSortOrder}
-            sx={{ mb: 1 }}
-          >
-            Urutkan: {isAscending ? 'Lama ke Baru (Ascending)' : 'Baru ke Lama (Descending)'}
-          </Button>
-
-          <Grid
-            container
-            spacing={1}
-            direction="column"
-            sx={{ maxHeight: 300, overflowY: 'auto' }}
-          >
-            {sortedDatesToShow.map((date, idx) => (
-              <Grid item key={idx}>
-                <button
-                  onClick={() => handleDateClick(date)}
-                  style={{
-                    width: '100%',
-                    padding: '6px 12px',
-                    borderRadius: 4,
-                    border: 'none',
-                    backgroundColor: expandedDate === date ? '#115293' : '#1976d2',
-                    color: '#fff',
-                    fontWeight: expandedDate === date ? 'bold' : 'normal',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {date}
-                </button>
-
-                <Collapse in={expandedDate === date} timeout="auto" unmountOnExit>
-                  <Grid container direction="column" sx={{ pl: 2, pt: 1 }}>
-                    {((dateTimeMap[date] || []).slice().sort((a, b) => {
-                      const [hA, mA, sA] = a.split(':').map(Number);
-                      const [hB, mB, sB] = b.split(':').map(Number);
-
-                      if (hA !== hB) return isAscending ? hA - hB : hB - hA;
-                      if (mA !== mB) return isAscending ? mA - mB : mB - mA;
-                      return isAscending ? sA - sB : sB - sA;
-                    })).map((time, i) => (
-                      <Grid item key={i}>
-                        <button
-                          onClick={() => handleTimeClick(date, time)}
-                          style={{
-                            marginBottom: 4,
-                            padding: '4px 8px',
-                            borderRadius: 4,
-                            backgroundColor: '#e0e0e0',
-                            border: '1px solid #ccc',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {time}
-                        </button>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Collapse>
-              </Grid>
-            ))}
+          <Grid item xs={3}>
+            <TextField
+              label="Bulan"
+              type="number"
+              value={month}
+              onChange={e => setMonth(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              label="Minggu ke-"
+              type="number"
+              value={week}
+              onChange={e => setWeek(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              label="Tanggal"
+              type="date"
+              value={day}
+              onChange={e => setDay(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
           </Grid>
         </Grid>
       </Grid>
-    </Card>
+
+      <Grid item xs={12}>
+        <Button variant="contained" fullWidth onClick={handleSubmit}>
+          Submit Filter
+        </Button>
+      </Grid>
+
+      {errorMessage && (
+        <Grid item xs={12}>
+          <Typography color="error">{errorMessage}</Typography>
+        </Grid>
+      )}
+
+      {/* Bagian hasil tanggal */}
+      <Grid item xs={12}>
+        <Typography variant="h6">Classification Results from the Last 7 Days:</Typography>
+        <Button variant="outlined" size="small" onClick={toggleSortOrder} sx={{ mb: 1 }}>
+          Urutkan: {isAscending ? 'Lama ke Baru' : 'Baru ke Lama'}
+        </Button>
+
+        <Box sx={{ display: 'flex', overflowX: 'auto', gap: 2, pb: 2 }}>
+          {sortedDatesToShow.map((date, idx) => (
+            <Box key={idx} sx={{ minWidth: 120 }}>
+              <Paper
+                onClick={() => handleDateClick(date)}
+                sx={{
+                  p: 1,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: expandedDate === date ? '#1976d2' : '#e0e0e0',
+                  color: expandedDate === date ? '#fff' : '#000',
+                  fontWeight: expandedDate === date ? 'bold' : 'normal',
+                }}
+              >
+                {date}
+              </Paper>
+
+              <Collapse in={expandedDate === date} timeout="auto" unmountOnExit>
+                <Box sx={{ display: 'flex', overflowX: 'auto', gap: 1, mt: 1, pl: 1 }}>
+                  {(dateTimeMap[date] || []).map((time, i) => (
+                    <Paper
+                      key={i}
+                      onClick={() => handleTimeClick(date, time)}
+                      sx={{
+                        px: 1.5,
+                        py: 0.5,
+                        backgroundColor: '#f0f0f0',
+                        border: '1px solid #ccc',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {time}
+                    </Paper>
+                  ))}
+                </Box>
+              </Collapse>
+            </Box>
+          ))}
+        </Box>
+      </Grid>
+    </Grid>
+  </Card>
   );
 };
 

@@ -6,7 +6,6 @@ import { Typography } from '@mui/material';
 import { AppDatePicker, AppTableSeverity, AppTray } from '../sections/@severitylog/app';
 
 export default function SeverityLogPage() {
-  // State untuk tanggal dan waktu yang dipilih
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
@@ -17,28 +16,26 @@ export default function SeverityLogPage() {
       </Helmet>
 
       <div style={{ padding: '20px' }}>
-        <Typography variant="h4" sx={{ mb: 3 }}>
-          Severity Log
-        </Typography>
+        {/* Baris pertama: Filter */}
+        <div style={{ marginBottom: '20px' }}>
+          <AppDatePicker onDateSelect={setSelectedDate} onTimeSelect={setSelectedTime} />
+        </div>
 
-        {/* Layout dengan 3 kolom */}
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-          
-          {/* Kiri: Date Picker */}
-          <div style={{ flex: 1, maxWidth: '250px' }}>
-            {/* Kirim fungsi setSelectedDate dan setSelectedTime ke AppDatePicker */}
-            <AppDatePicker onDateSelect={setSelectedDate} onTimeSelect={setSelectedTime} />
-          </div>
-
-          {/* Tengah: Table */}
+        {/* Baris kedua: Dua kolom: Table + Tray */}
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+          {/* Tabel di kiri */}
           <div style={{ flex: 2 }}>
-            {/* Kirim tanggal dan waktu yang dipilih ke AppTableSeverity */}
             <AppTableSeverity selectedDate={selectedDate} selectedTime={selectedTime} />
           </div>
 
-          {/* Kanan: Tray */}
-          <div style={{ flex: 1 }}>
-            <AppTray selectedDate={selectedDate} selectedTime={selectedTime} />
+          {/* Gambar tray di kanan */}
+          <div style={{ flex: 1, maxWidth: '900px' }}>
+            <AppTray
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+              setSelectedDate={setSelectedDate}
+              setSelectedTime={setSelectedTime}
+            />
           </div>
         </div>
       </div>
