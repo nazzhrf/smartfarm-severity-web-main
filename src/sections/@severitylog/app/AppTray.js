@@ -11,8 +11,10 @@ import {
   Typography,
 } from '@mui/material';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 export default function AppTray({
+
   selectedDate,
   selectedTime,
   setSelectedDate,
@@ -39,62 +41,52 @@ export default function AppTray({
     lastY: 0,
   });
 
-  // Fetch image function with fallback ONLY on fetch failure or missing image data
   const fetchImage = async (date = null, time = null) => {
-  setLoading(true);
-  setError(null);
-  try {
-    const body = {};
-    if (date) body.tanggal = date;
-    if (time) body.waktu = time;
+    setLoading(true);
+    setError(null);
+    try {
+      const body = {};
+      if (date) body.tanggal = date;
+      if (time) body.waktu = time;
 
-    const res = await axios.post(
-      'https://api-classify.smartfarm.id/get-full-image',
-      body
-    );
-    
-    console.log("Response from /get-full-image:", res.data);
+      const res = await axios.post(
+        'https://api-classify.smartfarm.id/get-full-image',
+        body
+      );
 
-    const { image_data: imageData } = res.data || {};
+      const { image_data: imageData } = res.data || {};
 
-    if (imageData) {
-      setImageSrc(imageData);
-      setZoom(1);
-      setTranslate({ x: 0, y: 0 });
-    } else {
-      console.warn("Image data kosong, pakai fallback");
+      if (imageData) {
+        setImageSrc(imageData);
+        setZoom(1);
+        setTranslate({ x: 0, y: 0 });
+      } else {
+        setImageSrc(fallbackImage);
+      }
+    } catch (err) {
+      setError('Pilih tanggal dan waktu serta tampilan tray kiri atau kanan');
       setImageSrc(fallbackImage);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error fetch /get-full-image:", err);
-    setError('Gagal memuat gambar tray.');
-    setImageSrc(fallbackImage);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchImage(selectedDate, selectedTime);
   }, [selectedDate, selectedTime]);
 
-  // onError IMAGE handler hanya set error, TIDAK ubah imageSrc
   const handleImageError = () => {
-    setError('Gagal memuat gambar tray.');
-    // Jangan ganti imageSrc, supaya fallback hanya dari fetch
+    setError('Pilih tanggal dan waktu serta tampilan tray kiri atau kanan');
   };
 
-  // Manual submit filter
   const handleSubmitFilter = () => {
     if (selectedDate && selectedTime) {
       fetchImage(selectedDate, selectedTime);
     }
   };
 
-  // Drag & zoom handlers tetap sama...
   const onMouseDown = (e) => {
     if (zoom <= 1) return;
-
     dragData.current.isDragging = true;
     dragData.current.startX = e.clientX;
     dragData.current.startY = e.clientY;
@@ -150,24 +142,62 @@ export default function AppTray({
     setZoom(newValue);
   };
 
+  const handleTrayButton = async (side) => {
+    if (!selectedDate || !selectedTime) {
+      setError("Tanggal dan waktu belum dipilih.");
+      return;
+    }
+
+    const payload = {
+      tanggal: selectedDate,        // sudah dalam format yyyy-MM-dd
+      waktu: selectedTime,          // sudah dalam format HH:mm:ss
+      image: side === 'left' ? 'left_full.jpg' : 'right_full.jpg'
+    };
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await axios.post(
+        'https://api-classify.smartfarm.id/get-full-image',
+        payload
+      );
+      const { image_data: imageData } = res.data || {};
+      if (imageData) {
+        setImageSrc(imageData);
+        setZoom(1);
+        setTranslate({ x: 0, y: 0 });
+      } else {
+        setImageSrc(fallbackImage);
+      }
+    } catch (err) {
+      setError('Gagal memuat gambar tray.');
+      setImageSrc(fallbackImage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Card sx={{ p: 3, maxWidth: 900, width: '100%', mx: 'auto', maxHeight: 600 }}>
+    <Card sx={{ p: 3, width: '100%', mx: 'auto', maxHeight: { xs: 'none', md: 600 }, mt: { xs: 2, md: 0 } }}>
       <CardHeader title="Full Tray View" />
 
       <Grid container spacing={2} direction="column">
         {/* Filter input */}
         <Grid item>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item>
+          <Grid container spacing={2} alignItems="center" sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
+            <Grid item xs={12} sm="auto">
               <TextField
                 label="Date"
                 type="date"
                 InputLabelProps={{ shrink: true }}
                 value={selectedDate || ''}
                 onChange={(e) => setSelectedDate(e.target.value)}
+                fullWidth
+                size="small"
               />
             </Grid>
-            <Grid item>
+            <Grid item xs={12} sm="auto">
               <TextField
                 label="Time"
                 type="time"
@@ -175,14 +205,28 @@ export default function AppTray({
                 value={selectedTime || ''}
                 onChange={(e) => setSelectedTime(e.target.value)}
                 inputProps={{ step: 1 }}
+                fullWidth
+                size="small"
               />
             </Grid>
-            <Grid item>
-              <Button variant="contained" onClick={handleSubmitFilter}>
+            <Grid item xs={12} sm="auto">
+              <Button variant="contained" onClick={handleSubmitFilter} fullWidth size="small">
                 Submit Filter
               </Button>
             </Grid>
           </Grid>
+        </Grid>
+
+        {/* Left & Right buttons */}
+        <Grid item>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+            <Button variant="outlined" onClick={() => handleTrayButton('left')}>
+              Left Tray
+            </Button>
+            <Button variant="outlined" onClick={() => handleTrayButton('right')}>
+              Right Tray
+            </Button>
+          </Box>
         </Grid>
 
         {/* Loading & error */}
@@ -192,62 +236,68 @@ export default function AppTray({
           </Grid>
         )}
 
-        {error && (
+        {/* {error && (
           <Grid item>
-            <Typography color="error">{error}</Typography>
+            <Typography color="error" variant="body2">{error}</Typography>
           </Grid>
-        )}
+        )} */}
 
         {/* Image display */}
         {!loading && (
-          <Grid item>
-            <Box
-              sx={{
-                borderRadius: 2,
-                padding: 1,
-                backgroundColor: '#fff',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                maxWidth: '30vw',
-                minWidth: 400 ,
-                height: 350,
-                overflow: 'hidden',
-                userSelect: 'none',
-              }}
-            >
+            <Grid item>
               <Box
-                component="img"
-                ref={imageRef}
-                src={imageSrc}
-                alt="Tray Image"
-                onError={handleImageError}
-                onClick={onClick}
-                onContextMenu={onContextMenu}
-                onMouseDown={onMouseDown}
                 sx={{
-                  maxHeight: '100%',
-                  maxWidth: '100%',
-                  objectFit: 'contain',
-                  borderRadius: 1,
-                  transform: `scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`,
-                  transformOrigin: zoomOrigin,
-                  transition: dragData.current.isDragging
-                    ? 'none'
-                    : 'transform 0.3s ease',
-                  cursor:
-                    zoom > 1
-                      ? dragData.current.isDragging
-                        ? 'grabbing'
-                        : 'grab'
-                      : 'zoom-in',
-                  touchAction: 'none',
+                  borderRadius: 2,
+                  padding: 1,
+                  backgroundColor: '#fff',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '100%',
+                  height: { xs: 250, sm: 300, md: 350 },
+                  overflow: 'hidden',
+                  userSelect: 'none',
+                  textAlign: 'center',
                 }}
-                draggable={false}
-              />
-            </Box>
-          </Grid>
-        )}
+              >
+                {error ? (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: '#666',           // warna netral, tidak mencolok
+                      fontStyle: 'italic',
+                      px: 2,
+                    }}
+                  >
+                    Pilih tanggal dan waktu serta tampilan tray kiri atau kanan
+                  </Typography>
+                ) : (
+                  <Box
+                    component="img"
+                    ref={imageRef}
+                    src={imageSrc}
+                    alt="Tray Image"
+                    onError={handleImageError}
+                    onClick={onClick}
+                    onContextMenu={onContextMenu}
+                    onMouseDown={onMouseDown}
+                    sx={{
+                      maxHeight: '100%',
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      borderRadius: 1,
+                      transform: `scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`,
+                      transformOrigin: zoomOrigin,
+                      transition: dragData.current.isDragging ? 'none' : 'transform 0.3s ease',
+                      cursor: zoom > 1 ? (dragData.current.isDragging ? 'grabbing' : 'grab') : 'zoom-in',
+                      touchAction: 'none',
+                    }}
+                    draggable={false}
+                  />
+                )}
+              </Box>
+            </Grid>
+          )}
 
         {/* Zoom slider */}
         <Grid item>
@@ -260,9 +310,17 @@ export default function AppTray({
             aria-label="Zoom"
             valueLabelDisplay="auto"
             disabled={loading || !!error}
+            size="small"
           />
         </Grid>
       </Grid>
     </Card>
   );
 }
+
+AppTray.propTypes = {
+  selectedDate: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+  selectedTime: PropTypes.string,
+  setSelectedDate: PropTypes.func,
+  setSelectedTime: PropTypes.func,
+};
